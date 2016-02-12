@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html >
+  <head>
+    <meta charset="UTF-8">
+    <title>WEATHER API</title>
+    <meta name="viewport" content="width=device-width, initial-scale=0">
+    
+    <link rel="stylesheet" href="css/reset.css">
+
+    <link rel="stylesheet prefetch' href='https://fonts.googleapis.com/css?family=Open+Sans">
+
+    <link rel="stylesheet" href="css/style.css"> 
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+
+    <!-- <link rel="stylesheet" href="css/bootstrap.min.css"> -->
+  </head>
+  <body>
+
+<!-- Modal -->
+<div id="add-action" class="modal fade">
+  <div class="vertical-alignment-helper">
+    <div class="modal-dialog vertical-align-center" style="width:65%;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="caption"><h2>Weather</h2></div>
+        </div>
+        <div class="modal-body">
+          <h3 class="city"></h3>
+          <h4 class="country"></h4>
+          <h4 class="temprature"></h4>
+        </div>
+        <fieldset>
+          <div class="modal-footer">
+            <button type="button" id="close-dialog" class="btn btn-default pull-right btn-space" data-dismiss="modal">Cancel</button>
+          </div>
+        </fieldset>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- model end -->
+    
+
+  <form id="searcher">
+    <label for="search"><span>Weather forcast </span></label>
+    <input id="search" type="search" value="" placeholder="Search by Zip/Address"/>
+  </form>
+ <div id="button">
+     <button id="OK">Check weather</button>
+  </div>
+
+<script src="jquery.js"></script>
+<script src="js/bootstrap.js"></script>
+<script src="keen.js"></script>
+<script>
+  (function(){
+    $('#button').on('click', function(){
+     var bla = $('#search').val();
+      $.ajax({
+        url:"http://api.openweathermap.org/data/2.5/weather?zip="+bla+",PK&APPID=bb1804c0a316a1fbfb1c52231879c19d",
+        success: function(result){  
+          $('h3.city').text('City: ' + result.name);
+          $('h4.country').text(result['sys'].country);
+          $('h4.temprature').text(result['main'].temp + ' Celcius');
+          $('#add-action').modal('show');
+
+          var weathAPI = {
+            city: result.name,
+            country: result['sys'].country,
+            temprature: result['main'].temp,
+            keen: {
+              timestamp: new Date().toISOString()
+            }
+          };
+          console.log(weathAPI);
+          var client = new Keen({
+            projectId: "56b32ee4672e6c30f129af8f",
+            writeKey: "fc894730ed8ce5f3a578767ba0d5cf1d2b704f54ea23ab1b6e3561403a2066a9abb9e1705b09b296ed873f097689ea5b200358c846a093618f4d3b80c6f5c55a59fd3ceaea3fd45a697a5bced77325f282bc6640511f1d8e90f95c48b6b68413"
+          });
+
+          client.addEvent("WeatherStatus", weathAPI, function(err, res){
+            if (err) {
+              console.log(err);
+            }
+            else {
+              console.log(res);
+            }
+          });
+        }
+      });
+    });
+  })();
+</script>
+    
+</body>
+</html>
